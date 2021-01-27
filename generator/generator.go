@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,7 +20,7 @@ import (
 )
 
 var output = flag.String("output", "/Users/xulingming/Public/workspace/leetcode-2021/.output", "")
-var input = flag.String("input", "/Users/xulingming/Public/workspace/leetcode-2021/problem-set.all.json", "")
+var input = flag.String("config", "/Users/xulingming/Public/workspace/leetcode-2021/problem-set.all.json", "")
 var outputFmt = flag.Int("output-fmt", 0, "")
 var lang = flag.String("lang", "zh", "")
 
@@ -45,36 +47,98 @@ type StatStatusPairs struct {
 	Difficulty difficulty `json:"difficulty"`
 	PaidOnly   bool       `json:"paid_only"`
 }
+
+func (sp *StatStatusPairs) GetCategoryTitle() string {
+	return "Algorithms"
+}
+func (sp *StatStatusPairs) GetIsPaidOnly() bool {
+	return sp.PaidOnly
+}
+func (sp *StatStatusPairs) GetDifficulty() int {
+	return sp.Difficulty.Level
+}
+func (sp *StatStatusPairs) GetQuestionFrontendId() string {
+	return fmt.Sprintf("%v", sp.Stat.FrontendQuestionID)
+}
+func (sp *StatStatusPairs) GetQuestionId() string {
+	return fmt.Sprintf("%v", sp.Stat.QuestionID)
+}
+func (sp *StatStatusPairs) GetTitle() string {
+	return sp.Stat.QuestionTitle
+}
+func (sp *StatStatusPairs) GetTitleSlug() string {
+	return sp.Stat.QuestionTitleSlug
+}
+func (sp *StatStatusPairs) GetTranslatedTitle() string {
+	return sp.Stat.QuestionTitle
+}
+
 type ProblemSet struct {
 	StatStatusPairs []StatStatusPairs `json:"stat_status_pairs"`
 }
 
+type QuestionInfoGetter interface {
+	GetCategoryTitle() string
+	GetIsPaidOnly() bool
+	GetDifficulty() int
+	GetQuestionFrontendId() string
+	GetQuestionId() string
+	GetTitle() string
+	GetTitleSlug() string
+	GetTranslatedTitle() string
+}
+
+type QuestionData struct {
+	CategoryTitle      string      `json:"categoryTitle"`      // : "Algorithms"
+	Difficulty         string      `json:"difficulty"`         // : "Easy"
+	IsPaidOnly         bool        `json:"isPaidOnly"`         // : false
+	QuestionFrontendId string      `json:"questionFrontendId"` // : "1"
+	QuestionId         string      `json:"questionId"`         // : "1"
+	Status             interface{} `json:"status"`             // : null
+	Title              string      `json:"title"`              // : "Two Sum"
+	TitleSlug          string      `json:"titleSlug"`          // : "two-sum"
+	TranslatedTitle    string      `json:"translatedTitle"`    // : null
+	Typename           string      `json:"__typename"`         // : "RawQuestionNode"
+}
+
+func (qd *QuestionData) GetCategoryTitle() string {
+	return qd.CategoryTitle
+}
+func (qd *QuestionData) GetIsPaidOnly() bool {
+	return qd.IsPaidOnly
+}
+func (qd *QuestionData) GetDifficulty() int {
+	switch qd.Difficulty {
+	case "Easy":
+		return 1
+	case "Medium":
+		return 2
+	case "Hard":
+		return 3
+	default:
+		return -1
+	}
+}
+func (qd *QuestionData) GetQuestionFrontendId() string {
+	return qd.QuestionFrontendId
+}
+func (qd *QuestionData) GetQuestionId() string {
+	return qd.QuestionId
+}
+func (qd *QuestionData) GetTitle() string {
+	return qd.Title
+}
+func (qd *QuestionData) GetTitleSlug() string {
+	return qd.TitleSlug
+}
+func (qd *QuestionData) GetTranslatedTitle() string {
+	return qd.TranslatedTitle
+}
+
 type GqlAllQuestion struct {
 	Data struct {
-		AllQuestionsBeta []struct {
-			CategoryTitle      string      `json:"categoryTitle"`      // : "Algorithms"
-			Difficulty         string      `json:"difficulty"`         // : "Easy"
-			IsPaidOnly         bool        `json:"isPaidOnly"`         // : false
-			QuestionFrontendId string      `json:"questionFrontendId"` // : "1"
-			QuestionId         string      `json:"questionId"`         // : "1"
-			Status             interface{} `json:"status"`             // : null
-			Title              string      `json:"title"`              // : "Two Sum"
-			TitleSlug          string      `json:"titleSlug"`          // : "two-sum"
-			TranslatedTitle    string      `json:"translatedTitle"`    // : null
-			Typename           string      `json:"__typename"`         // : "RawQuestionNode"
-		} `json:"allQuestionsBeta"`
-		AllQuestions []struct {
-			CategoryTitle      string      `json:"categoryTitle"`      // : "Algorithms"
-			Difficulty         string      `json:"difficulty"`         // : "Easy"
-			IsPaidOnly         bool        `json:"isPaidOnly"`         // : false
-			QuestionFrontendId string      `json:"questionFrontendId"` // : "1"
-			QuestionId         string      `json:"questionId"`         // : "1"
-			Status             interface{} `json:"status"`             // : null
-			Title              string      `json:"title"`              // : "Two Sum"
-			TitleSlug          string      `json:"titleSlug"`          // : "two-sum"
-			TranslatedTitle    string      `json:"translatedTitle"`    // : null
-			Typename           string      `json:"__typename"`         // : "RawQuestionNode"
-		} `json:"allQuestions"`
+		AllQuestionsBeta []QuestionData `json:"allQuestionsBeta"`
+		AllQuestions     []QuestionData `json:"allQuestions"`
 	} `json:"data"`
 }
 
@@ -101,16 +165,41 @@ func main() {
 	// 初始化endpoints配置
 	InitEndpoints()
 
-	arr := getAllProblems(MustGet(ALL_PROBLEM))
+	// arr := getAllProblems(MustGet(ALL_PROBLEM))
 
-	log.Printf("total problems: %d", len(arr.StatStatusPairs))
+	// log.Printf("total problems: %d", len(arr.StatStatusPairs))
 
 	// 参数模板
 	qe := MustGet(QUESTION_DATA)
 	gqlTmpl := template.Must(template.New("gql").Parse(qe.GQLTmpl))
 
+	allQs := getAllQuestions(MustGet(ALL_QUESTION))
+	var qs []QuestionData
+	if allQs == nil {
+		log.Printf("Get questions failed.")
+		return
+	}
+	if *lang == "zh" {
+		qs = allQs.Data.AllQuestionsBeta
+	} else {
+		qs = allQs.Data.AllQuestions
+	}
+	log.Printf("total problems: %d", len(qs))
 	log.Println("start download...")
-	for i, _ := range arr.StatStatusPairs {
+	for i := range qs {
+		q := &qs[i]
+		if q.GetIsPaidOnly() {
+			log.Printf(">> require premium: %s, skip.......", q.GetTitle())
+			continue
+		}
+		r := getQuestionData(qe, q, gqlTmpl)
+		if r == nil {
+			continue
+		}
+		writeOuput(q, r)
+		time.Sleep(time.Millisecond * 200)
+	}
+	/* for i, _ := range arr.StatStatusPairs {
 		p := &arr.StatStatusPairs[i]
 		if p.PaidOnly {
 			log.Printf(">> require premium: %s, skip.......", p.Stat.QuestionTitle)
@@ -122,7 +211,7 @@ func main() {
 		}
 		writeOuput(p, r)
 		time.Sleep(time.Millisecond * 200)
-	}
+	} */
 }
 
 func getAllProblems(ep *Endpoint) *ProblemSet {
@@ -146,9 +235,9 @@ func getAllProblems(ep *Endpoint) *ProblemSet {
 	return nil
 }
 
-func getQuestionData(ep *Endpoint, p *StatStatusPairs, gqlTmpl *template.Template) *GQLResult {
+func getQuestionData(ep *Endpoint, p QuestionInfoGetter, gqlTmpl *template.Template) *GQLResult {
 	var bw bytes.Buffer
-	if err := gqlTmpl.Execute(&bw, GQLParam{TitleSlug: p.Stat.QuestionTitleSlug}); err == nil {
+	if err := gqlTmpl.Execute(&bw, GQLParam{TitleSlug: p.GetTitleSlug()}); err == nil {
 		if resp, err := http.DefaultClient.Post(ep.URL, "application/json", &bw); err == nil {
 			log.Println(">> request ok")
 			if d, err := ioutil.ReadAll(resp.Body); err == nil {
@@ -171,23 +260,33 @@ func getQuestionData(ep *Endpoint, p *StatStatusPairs, gqlTmpl *template.Templat
 	return nil
 }
 
-func writeOuput(p *StatStatusPairs, qr *GQLResult) error {
-	var dir, file string
-	id, slug := p.Stat.FrontendQuestionID, p.Stat.QuestionTitleSlug
-	if *outputFmt == 0 {
-		dir = filepath.Join(*output, fmt.Sprintf("%v", id))
-		file = slug + ".md"
-		if err := os.Mkdir(dir, os.ModePerm); err != nil {
-			if os.IsExist(err) {
-				log.Println("dir exists")
+var numReg = regexp.MustCompile(`^\d+$`)
+
+func writeOuput(p QuestionInfoGetter, qr *GQLResult) error {
+	var dir, jsonDir, file string
+	id, slug := p.GetQuestionFrontendId(), p.GetTitleSlug()
+	if category := p.GetCategoryTitle(); category != "" {
+		dir = filepath.Join(*output, category)
+		// json dir
+		jsonDir = filepath.Join(dir, "json")
+		if _, err := os.Stat(jsonDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(jsonDir, os.ModePerm); err == nil {
+				log.Printf("目录: %s 创建成功\n", dir)
 			} else {
 				log.Printf("create dir unkonwn err: %v", err)
 			}
-			return err
 		}
+	}
+	filePrefix := ""
+	isNum := numReg.MatchString(id)
+	if isNum {
+		idNum, _ := strconv.Atoi(id)
+		filePrefix += fmt.Sprintf("%04d", idNum) + "."
+	}
+	if *lang == "zh" {
+		file = filePrefix + p.GetTranslatedTitle()
 	} else {
-		dir = *output
-		file = fmt.Sprintf("%v.%s.md", id, slug)
+		file = filePrefix + slug
 	}
 	{
 		var content = ""
@@ -196,9 +295,19 @@ func writeOuput(p *StatStatusPairs, qr *GQLResult) error {
 		} else {
 			content = qr.Data.Question.Content
 		}
-		ioutil.WriteFile(filepath.Join(dir, file), []byte(html2md.Convert(strings.ReplaceAll(content, "\n", "<br>"))), 0777)
+		ioutil.WriteFile(filepath.Join(dir, file+".md"), []byte(html2md.Convert(strings.ReplaceAll(content, "\n", "<br>"))), 0777)
+		if d, err := toJsonBytes(&(qr.Data.Question)); err == nil {
+			ioutil.WriteFile(filepath.Join(jsonDir, file+".src.json"), d, os.ModePerm)
+		}
+		if d, err := toJsonBytes(p); err == nil {
+			ioutil.WriteFile(filepath.Join(jsonDir, file+".json"), d, os.ModePerm)
+		}
 		return nil
 	}
+}
+
+func toJsonBytes(v interface{}) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
 }
 
 func getAllQuestions(ep *Endpoint) *GqlAllQuestion {

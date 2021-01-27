@@ -5,7 +5,7 @@ zh:
   ALL_QUESTION:
     name: "ALL_QUESTION"
     url: "https://leetcode-cn.com/graphql"
-    gql: '{"operationName":"allQuestionsRaw","variables":{},"query":"query allQuestionsRaw {\n  allQuestions: allQuestionsRaw {\n    title\n    titleSlug\n    translatedTitle\n    questionId\n    questionFrontendId\n    status\n    difficulty\n    isPaidOnly\n    categoryTitle\n    __typename\n  }\n}\n"}'  
+    gql: '{"operationName":"allQuestions","variables":{},"query":"query allQuestions {\n  allQuestionsBeta {\n    ...questionSummaryFields\n    __typename\n  }\n}\n\nfragment questionSummaryFields on QuestionNode {\n  title\n  titleSlug\n  translatedTitle\n  questionId\n  questionFrontendId\n  status\n  difficulty\n  isPaidOnly\n  categoryTitle\n  __typename\n}\n"}'  
   QUESTION_DATA:
     name: "QUESTION_DATA"
     url: "https://leetcode-cn.com/graphql"
