@@ -1,0 +1,24 @@
+zh:
+  ALL_PROBLEM:
+    name: "ALL_PROBLEM"
+    url: "https://leetcode-cn.com/api/problems/all/"
+  ALL_QUESTION:
+    name: "ALL_QUESTION"
+    url: "https://leetcode-cn.com/graphql"
+    gql: '{"operationName":"allQuestionsRaw","variables":{},"query":"query allQuestionsRaw {\n  allQuestions: allQuestionsRaw {\n    title\n    titleSlug\n    translatedTitle\n    questionId\n    questionFrontendId\n    status\n    difficulty\n    isPaidOnly\n    categoryTitle\n    __typename\n  }\n}\n"}'  
+  QUESTION_DATA:
+    name: "QUESTION_DATA"
+    url: "https://leetcode-cn.com/graphql"
+    gql: '{"operationName":"questionData","variables":{"titleSlug":"{{.TitleSlug}}"},"query":"query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    questionFrontendId\n    boundTopicId\n    title\n    titleSlug\n    content\n    translatedTitle\n    translatedContent\n    isPaidOnly\n    difficulty\n    likes\n    dislikes\n    isLiked\n    similarQuestions\n    contributors {\n      username\n      profileUrl\n      avatarUrl\n      __typename\n    }\n    langToValidPlayground\n    topicTags {\n      name\n      slug\n      translatedName\n      __typename\n    }\n    companyTagStats\n    codeSnippets {\n      lang\n      langSlug\n      code\n      __typename\n    }\n    stats\n    hints\n    solution {\n      id\n      canSeeDetail\n      __typename\n    }\n    status\n    sampleTestCase\n    metaData\n    judgerAvailable\n    judgeType\n    mysqlSchemas\n    enableRunCode\n    envInfo\n    book {\n      id\n      bookName\n      pressName\n      source\n      shortDescription\n      fullDescription\n      bookImgUrl\n      pressImgUrl\n      productUrl\n      __typename\n    }\n    isSubscribed\n    isDailyQuestion\n    dailyRecordStatus\n    editorType\n    ugcQuestionId\n    style\n    __typename\n  }\n}\n"}'
+en:
+  ALL_PROBLEM:
+    name: "ALL_PROBLEM"
+    url: "https://leetcode.com/api/problems/all/"
+  ALL_QUESTION:
+    name: "ALL_QUESTION"
+    url: "https://leetcode.com/graphql/"
+    gql: '{"operationName":"allQuestionsRaw","variables":{},"query":"query allQuestionsRaw {\n  allQuestions: allQuestionsRaw {\n    title\n    titleSlug\n    translatedTitle\n    questionId\n    questionFrontendId\n    status\n    difficulty\n    isPaidOnly\n    categoryTitle\n    __typename\n  }\n}\n"}'
+  QUESTION_DATA:
+    name: "QUESTION_DATA"
+    url: "https://leetcode.com/graphql"
+    gql: '{"operationName":"questionData","variables":{"titleSlug":"{{.TitleSlug}}"},"query":"query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    questionFrontendId\n    boundTopicId\n    title\n    titleSlug\n    content\n    translatedTitle\n    translatedContent\n    isPaidOnly\n    difficulty\n    likes\n    dislikes\n    isLiked\n    similarQuestions\n    contributors {\n      username\n      profileUrl\n      avatarUrl\n      __typename\n    }\n    langToValidPlayground\n    topicTags {\n      name\n      slug\n      translatedName\n      __typename\n    }\n    companyTagStats\n    codeSnippets {\n      lang\n      langSlug\n      code\n      __typename\n    }\n    stats\n    hints\n    solution {\n      id\n      canSeeDetail\n      __typename\n    }\n    status\n    sampleTestCase\n    metaData\n    judgerAvailable\n    judgeType\n    mysqlSchemas\n    enableRunCode\n    envInfo\n    book {\n      id\n      bookName\n      pressName\n      source\n      shortDescription\n      fullDescription\n      bookImgUrl\n      pressImgUrl\n      productUrl\n      __typename\n    }\n    isSubscribed\n    isDailyQuestion\n    dailyRecordStatus\n    editorType\n    ugcQuestionId\n    style\n    __typename\n  }\n}\n"}'
