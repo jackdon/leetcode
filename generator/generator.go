@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ var output = flag.String("output", "/Users/xulingming/Public/workspace/leetcode-
 var input = flag.String("config", "/Users/xulingming/Public/workspace/leetcode-2021/problem-set.all.json", "")
 var outputFmt = flag.Int("output-fmt", 0, "")
 var lang = flag.String("lang", "zh", "")
+var addTitle = flag.Bool("title", false, "")
 
 type stat struct {
 	QuestionID int `json:"question_id"` // : 1882,
@@ -186,6 +188,7 @@ func main() {
 	}
 	log.Printf("total problems: %d", len(qs))
 	log.Println("start download...")
+	manifest, _ := os.Create(filepath.Join(*output, "./mainifest.txt"))
 	for i := range qs {
 		q := &qs[i]
 		if q.GetIsPaidOnly() {
@@ -196,22 +199,10 @@ func main() {
 		if r == nil {
 			continue
 		}
-		writeOuput(q, r)
-		time.Sleep(time.Millisecond * 200)
+		writeOuput(q, r, manifest)
+		time.Sleep(time.Millisecond * 50)
 	}
-	/* for i, _ := range arr.StatStatusPairs {
-		p := &arr.StatStatusPairs[i]
-		if p.PaidOnly {
-			log.Printf(">> require premium: %s, skip.......", p.Stat.QuestionTitle)
-			continue
-		}
-		r := getQuestionData(qe, p, gqlTmpl)
-		if r == nil {
-			continue
-		}
-		writeOuput(p, r)
-		time.Sleep(time.Millisecond * 200)
-	} */
+	defer manifest.Close()
 }
 
 func getAllProblems(ep *Endpoint) *ProblemSet {
@@ -262,7 +253,7 @@ func getQuestionData(ep *Endpoint, p QuestionInfoGetter, gqlTmpl *template.Templ
 
 var numReg = regexp.MustCompile(`^\d+$`)
 
-func writeOuput(p QuestionInfoGetter, qr *GQLResult) error {
+func writeOuput(p QuestionInfoGetter, qr *GQLResult, w io.Writer) error {
 	var dir, jsonDir, file string
 	id, slug := p.GetQuestionFrontendId(), p.GetTitleSlug()
 	if category := p.GetCategoryTitle(); category != "" {
@@ -288,6 +279,7 @@ func writeOuput(p QuestionInfoGetter, qr *GQLResult) error {
 	} else {
 		file = filePrefix + slug
 	}
+	w.Write([]byte(p.GetCategoryTitle() + "/" + slug + "\n"))
 	{
 		var content = ""
 		if *lang == "zh" {
@@ -295,7 +287,9 @@ func writeOuput(p QuestionInfoGetter, qr *GQLResult) error {
 		} else {
 			content = qr.Data.Question.Content
 		}
-		ioutil.WriteFile(filepath.Join(dir, file+".md"), []byte(html2md.Convert(strings.ReplaceAll(content, "\n", "<br>"))), 0777)
+		var docTitle = ""
+		docTitle = fmt.Sprintf("---\nid: %s\ntitle: %s\n---\n", slug, file)
+		ioutil.WriteFile(filepath.Join(dir, file+".md"), []byte(docTitle+html2md.Convert(strings.ReplaceAll(content, "\n", "<br>"))), 0777)
 		if d, err := toJsonBytes(&(qr.Data.Question)); err == nil {
 			ioutil.WriteFile(filepath.Join(jsonDir, file+".src.json"), d, os.ModePerm)
 		}

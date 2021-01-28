@@ -2,3 +2,4 @@
 .vscode
 **/.docusaurus
 **/node_modules
+**/json
