@@ -9,7 +9,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  min-height: 60vh;
+  min-height: 70vh;
 }
 
 @media screen and (max-width: 966px) {
@@ -34,4 +34,7 @@
 .featureImage {
   height: 200px;
   width: 200px;
+}
+.footer--dark {
+  background: white;
 }

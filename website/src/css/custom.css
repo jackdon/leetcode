@@ -5,13 +5,13 @@
  */
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #764abc;
-  --ifm-color-primary-dark: #6a43a9;
-  --ifm-color-primary-darker: #5e3b96;
-  --ifm-color-primary-darkest: #533484;
-  --ifm-color-primary-light: #845cc3;
-  --ifm-color-primary-lighter: #916ec9;
-  --ifm-color-primary-lightest: #9f80d0;
+  --ifm-color-primary-lightest:	#f5cc81;
+  --ifm-color-primary-lighter:	#f1bc59;
+  --ifm-color-primary-light:	#f0b74c;
+  --ifm-color-primary:	#eeac31;
+  --ifm-color-primary-dark:	#eca116;
+  --ifm-color-primary-darker:	#e19913;
+  --ifm-color-primary-darkest: #ba7e0f;
 
   --ifm-code-font-size: 95%;
   --ifm-code-border-radius: 3px;
@@ -56,21 +56,21 @@
 }
 
 :root[data-theme='dark'] {
-  --ifm-color-primary: #ba8fff;
-  --ifm-color-primary-dark: #7431ca;
-  --ifm-color-primary-darker: #6d1cac;
-  --ifm-color-primary-darkest: #730c9a;
-  --ifm-color-primary-light: #b97cfd;
-  --ifm-color-primary-lighter: #cc8ffc;
-  --ifm-color-primary-lightest: #fcf2ff;
+  --ifm-color-primary-lightest:	#f5cc81;
+  --ifm-color-primary-lighter:	#f1bc59;
+  --ifm-color-primary-light:	#f0b74c;
+  --ifm-color-primary:	#eeac31;
+  --ifm-color-primary-dark:	#eca116;
+  --ifm-color-primary-darker:	#e19913;
+  --ifm-color-primary-darkest: #ba7e0f;
 
   --ifm-blockquote-color: #ecf4f9;
-  --ifm-blockquote-color-dark: #6d1cac;
+  --ifm-blockquote-color-dark: #ba7e0f;
   --blockquote-text-color: black;
 }
 
 :root[data-theme='dark'] .hero.hero--primary {
-  --ifm-hero-background-color: #593d88;
+  --ifm-hero-background-color: #e19913;
   --ifm-hero-text-color: #ffffff;
 }
 
@@ -114,7 +114,7 @@ a.contents__link.contents__link--active {
 }
 
 a:visited {
-  color: var(--ifm-color-primary);
+  color: var(--ifm-color-gray-700);
 }
 
 .navbar .navbar__inner {
