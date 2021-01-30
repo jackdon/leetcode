@@ -105,6 +105,13 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} LeetCode Go.`,
     },
+    algolia: {
+      apiKey: '99b342d9ee4c048c72a0e028e54201a9',
+      appId: 'PIBA4C4WI9',
+      indexName: 'leetcode',
+      // Optional: see doc section bellow
+      algoliaOptions: {}
+    }  
   },
   presets: [
     [
