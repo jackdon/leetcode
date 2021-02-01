@@ -1,5 +1,7 @@
-package week1
+package algorithms
 
+// 能否连成数组
+// https://leetcode.xulingming.cn/Algorithms/check-array-formation-through-concatenation/
 func canFormArray(arr []int, pieces [][]int) bool {
 
 	var intArrayEqual = func(a, b []int) bool {
