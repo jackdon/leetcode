@@ -1256,7 +1256,7 @@ module.exports = {
       'Algorithms/special-array-with-x-elements-greater-than-or-equal-x',
       'Algorithms/even-odd-tree',
       'Algorithms/minimum-one-bit-operations-to-make-integers-zero',
-      // 'Algorithms/maximum-number-of-visible-points', // build error
+      'Algorithms/maximum-number-of-visible-points', // build error
       'Algorithms/maximum-nesting-depth-of-the-parentheses',
       'Algorithms/maximal-network-rank',
       'Algorithms/split-two-strings-to-make-palindrome',
