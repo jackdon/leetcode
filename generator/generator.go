@@ -20,11 +20,10 @@ import (
 	"github.com/TruthHun/html2md"
 )
 
-var output = flag.String("output", "/Users/xulingming/Public/workspace/leetcode-2021/.output", "")
-var input = flag.String("config", "/Users/xulingming/Public/workspace/leetcode-2021/problem-set.all.json", "")
-var outputFmt = flag.Int("output-fmt", 0, "")
-var lang = flag.String("lang", "zh", "")
-var addTitle = flag.Bool("title", false, "")
+var output = flag.String("output", "~/.output", "题库md文件输出目录")
+var input = flag.String("config", "~/config.yaml", "指定不同语言题库GQL数据端点")
+var lang = flag.String("lang", "zh", "指定算法题语言,默认zh使用中文源")
+var addTitle = flag.Bool("title", false, "默认true将在MD文件开始添加特定头")
 
 type stat struct {
 	QuestionID int `json:"question_id"` // : 1882,
